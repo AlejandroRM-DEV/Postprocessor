@@ -1,0 +1,16 @@
+type: choice
+is_multiple_choice: true
+options:
+- text: One of the optional parameters is the encoding.
+- text: "An asynchronous function has no optional parameters, while a synchronous\
+    \ function does."
+- text: "If we do not specify the encoding, a buffer will be returned instead of a\
+    \ string."
+files:
+- name: main.js
+  visible: true
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/25760#comment
+status: Solved
+record: -1
+local_check: false

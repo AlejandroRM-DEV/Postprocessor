@@ -1,0 +1,15 @@
+type: choice
+is_multiple_choice: true
+options:
+- text: <code>const fs = import require('node:fs');</code>
+- text: <code>const fs = require('node:fs');</code>
+- text: <code>import * as fs from 'node:fs';</code>
+- text: <code>const fs = require('fs');</code>
+files:
+- name: main.js
+  visible: true
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/25758#comment
+status: Unchecked
+record: -1
+local_check: false

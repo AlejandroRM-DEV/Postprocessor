@@ -1,0 +1,20 @@
+type: matching
+captions:
+- <code>fs.readFileSync(...)</code>
+- <code>fs.readFile(...)</code>
+- ""
+options:
+- Has two required arguments
+- Has no optional arguments
+- Has only one required argument
+files:
+- name: main.js
+  visible: true
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/25761#comment
+status: Solved
+record: -1
+ordering:
+- 0
+- 1
+- 2
