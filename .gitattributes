@@ -1,2 +1,4 @@
 *.html linguist-detectable=false  
 *.yaml linguist-detectable=false
+*.python linguist-detectable=false
+*.py linguist-detectable=false
