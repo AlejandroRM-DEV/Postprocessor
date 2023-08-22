@@ -1,0 +1,15 @@
+type: choice
+is_multiple_choice: true
+options:
+- text: A
+- text: C
+- text: D
+- text: B
+files:
+- name: main.js
+  visible: true
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/18288#comment
+status: Solved
+record: -1
+local_check: false

@@ -108,9 +108,6 @@ files:
 - name: main.js
   visible: true
   learner_created: false
-- name: test/__init__.py
-  visible: false
-  learner_created: false
 - name: test/tests.py
   visible: false
   text: "from hstest import *\nimport random\nimport hashlib\nimport os\nimport string\n\
@@ -171,7 +168,13 @@ files:
     if __name__ == '__main__':
         Test().run_tests()
   learner_created: false
+- name: test/__init__.py
+  visible: false
+  learner_created: false
 feedback_link: https://hyperskill.org/learn/step/25697#comment
 check_profile: hyperskill_node_javascript
-status: Unchecked
-record: -1
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: "Tue, 22 Aug 2023 15:52:07 UTC"
+record: 2

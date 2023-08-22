@@ -1,7 +1,8 @@
 from hstest import *
 import random
-import string
+import hashlib
 import os
+import string
 
 
 class Test(StageTest):
@@ -14,68 +15,84 @@ class Test(StageTest):
         buffer = string.ascii_lowercase + string.digits
         return ''.join(random.sample(buffer, 8))
 
-    def create_file(self):
-        with open("database.csv", "a") as file:
-            file.write('id, nickname, password, consent to mailing')
-            for index in range(1, 101):
-                name = random.choice([self.random_word(8), '-'])
-                password = self.random_password()
-                mailing = random.choice(['yes', 'no', '-'])
-                line = f'\n{index}, {name}, {password}, {mailing}'
-                file.write(line)
+    def create_file(self, variant):
+        if variant == 'database':
+            with open("database.csv", "a") as file:
+                file.write('id, nickname, password, consent to mailing')
+                for index in range(1, 101):
+                    name = random.choice([self.random_word(8), '-'])
+                    password = self.random_password()
+                    mailing = random.choice(['yes', 'no', '-'])
+                    line = f'\n{index}, {name}, {password}, {mailing}'
+                    file.write(line)
+        if variant == 'hash_database':
+            with open("hash_database.csv", "a") as file:
+                file.write('id, nickname, password, consent to mailing\n')
+        if variant == 'filtered_database':
+            with open("filtered_database.csv", "a") as file:
+                file.write('id, nickname, password, consent to mailing\n')
 
     @dynamic_test()
     def test(self):
         random.seed(88)
 
         if not os.path.isfile('database.csv'):
-            self.create_file()
+            self.create_file('database')
 
         with open('database.csv') as f:
             lines = [line.strip('\n').split(', ') for line in f if len(line) > 1]
             if len(lines) < 101:
                 open('database.csv', 'w').close()
-                self.create_file()
+                self.create_file('database')
                 lines = [line.strip('\n').split(', ') for line in f if len(line) > 1]
-            last_index = int(lines[-1][0])
+            lines.pop(0)
 
-        csv_index = last_index + 1
-        csv_name = random.choice([self.random_word(8), '-'])
-        csv_password = self.random_password()
-        csv_mailing = random.choice(['yes', 'no', '-'])
+        if not os.path.isfile('hash_database.csv'):
+            self.create_file('hash_database')
 
-        csv_row = f'\n{csv_index}, {csv_name}, {csv_password}, {csv_mailing}'
-
-        with open('database.csv', 'a') as fd:
-            fd.write(csv_row)
+        if not os.path.isfile('filtered_database.csv'):
+            self.create_file('filtered_database')
 
         main = TestedProgram()
-        output = main.start()
+        main.start()
 
-        if csv_name not in output:
-            return CheckResult.wrong(f'Your program print {output},'
-                                     f' but expected {csv_name} nickname of user in the output.')
+        with open('hash_database.csv') as f:
+            hash_lines = [hash_line.split(', ') for hash_line in f if len(hash_line) > 1]
+            if hash_lines[0] != ['id', 'nickname', 'password', 'consent to mailing\n']:
+                return CheckResult.wrong("It looks like your file is missing the first line 'id, nickname, password, " 
+                                         "consent to mailing'. It should be in the first place, "
+                                         " as indicated in the screenshot in the task.")
+            if len(hash_lines) < 101:
+                return CheckResult.wrong("It looks like your hash_database.csv file has fewer lines "
+                                         "than your original database.csv file. You may have lost some lines!")
+            if len(hash_lines) > 101:
+                return CheckResult.wrong("It seems your hash_database.csv file contains more rows than expected!"
+                                         " You may have duplicated the data!")
 
-        if csv_mailing not in output:
-            return CheckResult.wrong(f'Your program print "{output}",'
-                                     f' but expected "{csv_mailing}" consent to mailing status in the output.')
-        if output.count('\n') > 1:
-            return CheckResult.wrong(f'It looks like you typed multiple lines when one is required,'
-                                     f' or you used too many "\\n" characters')
-        if len(output) > 100:
-            return CheckResult.wrong(f'It looks like your program is outputting too many characters, even though'
-                                     f' it takes significantly fewer characters to write one line with data.')
+        with open('filtered_database.csv') as f:
+            lines = [line.split(', ') for line in f if len(line) > 1]
+            if len(lines) < 30:
+                return CheckResult.wrong(f'It looks like you deleted some data because the expected number' +
+                                         f' of non-blank lines is 30, but there are {len(lines)}'
+                                         f' non-blank lines in your file')
 
-        with open("database.csv", "r") as f:
-            lines = f.readlines()
-        with open("database.csv", "w") as f:
-            f.write('id, nickname, password, consent to mailing\n')
-        with open("database.csv", "a") as f:
-            for line in lines[1:last_index + 1]:
-                if line == lines[last_index]:
-                    f.write(line.strip('\n'))
-                else:
-                    f.write(line)
+            if len(lines) > 30:
+                return CheckResult.wrong(f'It looks like you added some extra data because the expected number' +
+                                         f' of non-blank lines is 30, but there are {len(lines)}'
+                                         f' non-blank lines in your file')
+
+            lines.pop(0)
+
+        with open('./test/tests_filtered_database.csv') as f:
+            tests_lines = [line.split(', ') for line in f if len(line) > 1]
+            tests_lines.pop(0)
+
+        random_line = random.choice(lines)
+        random_id = int(random_line[0])
+
+        if random_line != tests_lines[random_id - 1]:
+            return CheckResult.wrong(f'Your user information: {random_line},'
+                                     f' although the following line was expected: {tests_lines[random_id - 1]}')
 
         return CheckResult.correct()
 
